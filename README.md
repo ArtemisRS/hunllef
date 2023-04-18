@@ -6,8 +6,8 @@ Simulator for the Corrupted Hunllef fight to predict food needed and time taken
 for a perfect fight.
 
 Can set the following variables from the CLI
-- # of trials to sim
-- # of fish to consume
+- num of trials to sim
+- num of fish to consume
 - tier of CG armour
 - stat level (range/mage) - this has not been tested
 - prayer (TBD)
