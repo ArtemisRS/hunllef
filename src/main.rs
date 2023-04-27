@@ -1,6 +1,6 @@
 use clap::{Parser};
 use fastrand::Rng;
-
+use hdrhistogram::Histogram;
 
 #[derive(Parser, Debug)]
 #[command(name = "Hunllef")]
@@ -26,6 +26,10 @@ struct Cli {
     /// HP threshold to eat fish
     #[arg(short, long, default_value_t = 50)]
     eat_at_hp: u16,
+
+    /// Histogram values for times/fish_eaten
+    #[arg(long, default_value_t = false)]
+    histogram: bool
 
     //prayer: TBD
 }
@@ -249,6 +253,36 @@ impl Player {
 }
 
 
+fn generate_histogram(times: &[u16], fish_eaten: &[u8], fish_count: u8) {
+    let mut hist = Histogram::<u64>::new(3).unwrap();
+    for num in times {
+        hist.record(*num as u64).unwrap();
+    }
+
+    println!("# of samples: {}", hist.len());
+    println!(".5'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.005)));
+    println!("2.5'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.025)));
+    println!("16.7'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.167)));
+    println!("50'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.50)));
+    println!("83'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.83)));
+    println!("97.5'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.975)));
+    println!("99.5'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.995)));
+
+    let mut hist = Histogram::<u64>::new(3).unwrap();
+    for num in fish_eaten {
+        hist.record(fish_count as u64 - *num as u64).unwrap();
+    }
+
+    println!("\n\n# of samples: {}", hist.len());
+    println!(".5'th percentile: {}", hist.value_at_quantile(0.005));
+    println!("2.5'th percentile: {}", hist.value_at_quantile(0.025));
+    println!("16.7'th percentile: {}", hist.value_at_quantile(0.167));
+    println!("50'th percentile: {}", hist.value_at_quantile(0.50));
+    println!("83'th percentile: {}", hist.value_at_quantile(0.83));
+    println!("97.5'th percentile: {}", hist.value_at_quantile(0.975));
+    println!("99.5'th percentile: {}", hist.value_at_quantile(0.995));
+}
+
 
 fn main() {
     let args = Cli::parse();
@@ -291,10 +325,12 @@ fn main() {
             time += 1;
 
         }
+
+        fish_eaten.push(player.fish); //have the count include failure cases
         if player.hp > 0 && hunllef.hp <= 0 {
             success += 1;
             times.push(time);
-            fish_eaten.push(player.fish);
+            //fish_eaten.push(player.fish);
         }
     }
     //println!("{:?}", times);
@@ -302,6 +338,16 @@ fn main() {
     println!("success rate: {}", (success as f32 * 100.0) / (args.trials as f32));
     println!("avg fish eaten: {:.1}", args.fish as f64 - fish_eaten.iter().map(|n| *n as u64).sum::<u64>() as f64 / fish_eaten.len() as f64);
     println!("avg time: {:.1}", times.iter().map(|t| *t as u64).sum::<u64>() as f64 / times.len() as f64);
+
+    if args.histogram {
+        generate_histogram(&times, &fish_eaten, args.fish);
+    }
+}
+
+fn tick_to_secs(ticks: u64) -> String {
+    let min = ticks / 100;
+    let sec = ticks * 3 / 5 % 60;
+    format!("{}:{:#02}", min, sec)
 }
 
 
