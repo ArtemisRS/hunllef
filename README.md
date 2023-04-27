@@ -23,6 +23,11 @@ alive) and average (successful) completion time.
 3. `cargo run` 
 4. `cargo run -- --help` for options
 
+*Note: Recommend running release (not debug) for large number of trials (>10k)*
+```rust
+cargo run --release -- --trials 1000000
+```
+
 ## Future features
 - tick eating
 - graphs (success rate by fish/lvl)
