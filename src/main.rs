@@ -29,7 +29,11 @@ struct Cli {
 
     /// Histogram values for times/fish_eaten
     #[arg(long, default_value_t = false)]
-    histogram: bool
+    histogram: bool,
+
+    ///Simulate tick eating when hp is below Hunllef max
+    #[arg(long, default_value_t = false)]
+    tick_eat: bool,
 
     //prayer: TBD
 }
@@ -161,7 +165,7 @@ impl Hunllef {
         if self.attack_cd == 0 {
             self.attack_cd += self.attack_delay - 1;
             if self.tornado_cd == 0 {
-                //println!("tornado!");
+                //println!("  tornado!");
                 self.tornado_cd = rng.u8(10..15);
                 return None;
             } else {
@@ -247,7 +251,7 @@ impl Player {
             self.fish -= 1;
             self.attack_cd += 3;
             self.hp += 20;
-            //println!("eating a fish to take us to {}", self.hp);
+            //println!("  eating a fish to take us to {}", self.hp);
         }
     }
 }
@@ -306,19 +310,26 @@ fn main() {
             //println!("  {}, {}", player.attack_cd, player.attacks_left);
             if let Some(damage) = player.attack(&rng, hunllef.defensive_roll) {
                 hunllef.hp -= damage;
-                //println!("  hunllef takes {damage}");
+                //println!("  hunllef takes {damage} damage");
             }
 
             if let Some(damage) = hunllef.attack(&rng, player.range.defensive_roll) {
+                let starting_hp = player.hp;
                 if player.hp < damage {
                     player.hp = 0;
                 } else {
                     player.hp -= damage;
                 }
-                //println!("  player takes {damage}");
+                //println!("  player takes {} damage", starting_hp - player.hp);
+                //only tick eat when hunllef is attacking
+                if args.tick_eat && starting_hp <= hunllef.max_hit {
+                    player.eat_fish();
+                    //println!("  tick ate from {} to {}", starting_hp, player.hp);
+                }
             }
 
-            if player.hp < args.eat_at_hp {
+            //don't heal up when we're tick eating
+            if !args.tick_eat && player.hp < args.eat_at_hp {
                 player.eat_fish();
             }
 
@@ -331,6 +342,9 @@ fn main() {
             success += 1;
             times.push(time);
             //fish_eaten.push(player.fish);
+            //println!("SUCCESS\n");
+        } else {
+            //println!("FAILURE\n");
         }
     }
     //println!("{:?}", times);
