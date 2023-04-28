@@ -1,4 +1,4 @@
-use clap::{Parser};
+use clap::Parser;
 use fastrand::Rng;
 use hdrhistogram::Histogram;
 
@@ -34,10 +34,8 @@ struct Cli {
     ///Simulate tick eating when hp is below Hunllef max
     #[arg(long, default_value_t = false)]
     tick_eat: bool,
-
     //prayer: TBD
 }
-
 
 #[allow(unused)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -98,7 +96,9 @@ impl Setup {
 
         let effective_strength_level = effective_level(level, prayer_strength, Some(weapon));
         let max_hit = match weapon {
-            Weapon::Bow | Weapon::Halberd => (effective_strength_level * (equipment_strength as u16 + 64) + 320) / 640 ,
+            Weapon::Bow | Weapon::Halberd => {
+                (effective_strength_level * (equipment_strength as u16 + 64) + 320) / 640
+            }
             Weapon::Staff => 39,
         };
 
@@ -116,7 +116,7 @@ impl Setup {
 
     fn attack(self, rng: &Rng, hunllef_defensive_roll: u16) -> i16 {
         if rng.u16(0..self.accuracy_roll) > rng.u16(0..hunllef_defensive_roll) {
-            rng.u16(0..self.max_hit+1) as i16 //range is not inclusive of top
+            rng.u16(0..self.max_hit + 1) as i16 //range is not inclusive of top
         } else {
             0
         }
@@ -136,7 +136,6 @@ struct Hunllef {
 
 impl Hunllef {
     fn new(armour_tier: u8) -> Hunllef {
-
         let max_hit = match armour_tier {
             1 => 13,
             2 => 10,
@@ -144,8 +143,8 @@ impl Hunllef {
             _ => 0,
         };
         let attack_delay = 5;
-        let accuracy_roll = (240+9) * (90+64);
-        let defensive_roll = (240+9) * (20+64);
+        let accuracy_roll = (240 + 9) * (90 + 64);
+        let defensive_roll = (240 + 9) * (20 + 64);
         let hp = 1000;
         let tornado_cd = 12;
         let attack_cd = 0;
@@ -173,7 +172,7 @@ impl Hunllef {
             }
 
             if rng.u16(0..self.accuracy_roll) > rng.u16(0..player_defensive_roll) {
-                Some(rng.u16(0..self.max_hit+1)) //range is not inclusive of top
+                Some(rng.u16(0..self.max_hit + 1)) //range is not inclusive of top
             } else {
                 Some(0)
             }
@@ -184,14 +183,13 @@ impl Hunllef {
     }
 }
 
-
 #[derive(Debug, Clone, Copy)]
 struct Player {
     range: Setup,
     mage: Setup,
     hp: u16,
     fish: u8,
-    attack_cd: u8, //ticks
+    attack_cd: u8,    //ticks
     attacks_left: u8, //before switching styles
     current: Weapon,
 }
@@ -237,7 +235,7 @@ impl Player {
             };
 
             self.attack_cd += setup.attack_delay - 1; //first tick of delay is
-                                                        //the attack
+                                                      //the attack
             self.attacks_left -= 1;
             Some(setup.attack(rng, hunllef_defensive_roll))
         } else {
@@ -256,37 +254,35 @@ impl Player {
     }
 }
 
-
-fn generate_histogram(times: &[u16], fish_eaten: &[u8], fish_count: u8) {
+fn generate_histogram(times: &[u16], fish_eaten: &[u64]) {
     let mut hist = Histogram::<u64>::new(3).unwrap();
     for num in times {
         hist.record(*num as u64).unwrap();
     }
 
     println!("# of samples: {}", hist.len());
-    println!(".5'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.005)));
-    println!("2.5'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.025)));
-    println!("16.7'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.167)));
-    println!("50'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.50)));
-    println!("83'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.83)));
-    println!("97.5'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.975)));
-    println!("99.5'th percentile: {}", tick_to_secs(hist.value_at_quantile(0.995)));
+    println!("  .5'th %: {}", tick_to_secs(hist.value_at_quantile(0.005)));
+    println!(" 2.5'th %: {}", tick_to_secs(hist.value_at_quantile(0.025)));
+    println!("16.7'th %: {}", tick_to_secs(hist.value_at_quantile(0.167)));
+    println!("50.0'th %: {}", tick_to_secs(hist.value_at_quantile(0.50)));
+    println!("83.0'th %: {}", tick_to_secs(hist.value_at_quantile(0.83)));
+    println!("97.5'th %: {}", tick_to_secs(hist.value_at_quantile(0.975)));
+    println!("99.5'th %: {}", tick_to_secs(hist.value_at_quantile(0.995)));
 
     let mut hist = Histogram::<u64>::new(3).unwrap();
     for num in fish_eaten {
-        hist.record(fish_count as u64 - *num as u64).unwrap();
+        hist.record(*num).unwrap();
     }
 
-    println!("\n\n# of samples: {}", hist.len());
-    println!(".5'th percentile: {}", hist.value_at_quantile(0.005));
-    println!("2.5'th percentile: {}", hist.value_at_quantile(0.025));
-    println!("16.7'th percentile: {}", hist.value_at_quantile(0.167));
-    println!("50'th percentile: {}", hist.value_at_quantile(0.50));
-    println!("83'th percentile: {}", hist.value_at_quantile(0.83));
-    println!("97.5'th percentile: {}", hist.value_at_quantile(0.975));
-    println!("99.5'th percentile: {}", hist.value_at_quantile(0.995));
+    println!("\n# of samples: {}", hist.len());
+    println!("  .5'th %: {}", hist.value_at_quantile(0.005));
+    println!(" 2.5'th %: {}", hist.value_at_quantile(0.025));
+    println!("16.7'th %: {}", hist.value_at_quantile(0.167));
+    println!("50.0'th %: {}", hist.value_at_quantile(0.50));
+    println!("83.0'th %: {}", hist.value_at_quantile(0.83));
+    println!("97.5'th %: {}", hist.value_at_quantile(0.975));
+    println!("99.5'th %: {}", hist.value_at_quantile(0.995));
 }
-
 
 fn main() {
     let args = Cli::parse();
@@ -295,7 +291,7 @@ fn main() {
     let mage = Setup::new(Weapon::Staff, Prayer::Augury, args.level, args.armour);
 
     let mut times = Vec::new();
-    let mut fish_eaten = Vec::new();
+    let mut fish_rem = Vec::new();
     let mut success = 0;
     let rng = fastrand::Rng::new();
 
@@ -334,27 +330,30 @@ fn main() {
             }
 
             time += 1;
-
         }
 
-        fish_eaten.push(player.fish); //have the count include failure cases
+        fish_rem.push(player.fish); //have the count include failure cases
         if player.hp > 0 && hunllef.hp <= 0 {
             success += 1;
             times.push(time);
-            //fish_eaten.push(player.fish);
+            //fish_rem.push(player.fish);
             //println!("SUCCESS\n");
         } else {
             //println!("FAILURE\n");
         }
     }
-    //println!("{:?}", times);
-    //println!("{:?}", fish_eaten);
-    println!("success rate: {}", (success as f32 * 100.0) / (args.trials as f32));
-    println!("avg fish eaten: {:.1}", args.fish as f64 - fish_eaten.iter().map(|n| *n as u64).sum::<u64>() as f64 / fish_eaten.len() as f64);
-    println!("avg time: {:.1}", times.iter().map(|t| *t as u64).sum::<u64>() as f64 / times.len() as f64);
+
+    let fish_eaten: Vec<u64> = fish_rem.iter().map(|n| (args.fish - *n) as u64).collect();
+
+    let success_rate = (success as f32 * 100.0) / (args.trials as f32);
+    let avg_fish: f64 = fish_eaten.iter().sum::<u64>() as f64 / fish_eaten.len() as f64;
+    let avg_time = times.iter().map(|t| *t as u64).sum::<u64>() as f64 / times.len() as f64;
+    println!("success rate: {}", success_rate);
+    println!("avg fish eaten: {:.1}", avg_fish);
+    println!("avg time: {:.1}", avg_time);
 
     if args.histogram {
-        generate_histogram(&times, &fish_eaten, args.fish);
+        generate_histogram(&times, &fish_eaten);
     }
 }
 
@@ -363,8 +362,6 @@ fn tick_to_secs(ticks: u64) -> String {
     let sec = ticks * 3 / 5 % 60;
     format!("{}:{:#02}", min, sec)
 }
-
-
 
 #[cfg(test)]
 mod tests {
