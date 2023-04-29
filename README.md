@@ -63,6 +63,38 @@ alive) and average (successful) completion time.
 cargo run --release -- --trials 1000000
 ```
 
+### Sample run at the point a player might be starting CG
+
+```
+$ time cargo run --release -- -t 1000000 --histogram --fish 25 --ranged 92 --magic 92 --hp 85 --defence 75 --ranged-prayer eagle-eye --magic-prayer mystic-might
+    Finished release [optimized] target(s) in 0.16s
+     Running `target/release/hunllef -t 1000000 --histogram --fish 25 --ranged 92 --magic 92 --hp 85 --defence 75 --ranged-prayer eagle-eye --magic-prayer mystic-might`
+success rate: 99.99%
+avg fish eaten: 14.8
+avg time: 376.6 ticks
+Histograms
+Time (m:ss) - 999926 samples
+  .5'th %: 2:38
+ 2.5'th %: 2:51
+16.7'th %: 3:16
+50.0'th %: 3:44
+83.0'th %: 4:15
+97.5'th %: 4:48
+99.5'th %: 5:10
+Fish eaten - 1000000 samples (includes failures)
+  .5'th %: 8
+ 2.5'th %: 9
+16.7'th %: 12
+50.0'th %: 15
+83.0'th %: 18
+97.5'th %: 21
+99.5'th %: 24
+
+real    0m2.034s
+user    0m1.699s
+sys     0m0.030s
+```
+
 ## Future features (in rough order of implementing)
 - use different prayers (ee, mystic might)
 - melee (halberd)

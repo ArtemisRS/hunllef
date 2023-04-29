@@ -357,7 +357,8 @@ fn generate_histogram(times: &[u16], fish_eaten: &[u64]) {
         hist.record(*num as u64).unwrap();
     }
 
-    println!("# of samples: {}", hist.len());
+    println!("\nHistograms");
+    println!("Time (m:ss) - {} samples", hist.len());
     println!("  .5'th %: {}", tick_to_secs(hist.value_at_quantile(0.005)));
     println!(" 2.5'th %: {}", tick_to_secs(hist.value_at_quantile(0.025)));
     println!("16.7'th %: {}", tick_to_secs(hist.value_at_quantile(0.167)));
@@ -371,7 +372,7 @@ fn generate_histogram(times: &[u16], fish_eaten: &[u64]) {
         hist.record(*num).unwrap();
     }
 
-    println!("\n# of samples: {}", hist.len());
+    println!("\nFish eaten - {} samples (includes failures)", hist.len());
     println!("  .5'th %: {}", hist.value_at_quantile(0.005));
     println!(" 2.5'th %: {}", hist.value_at_quantile(0.025));
     println!("16.7'th %: {}", hist.value_at_quantile(0.167));
@@ -465,9 +466,9 @@ fn main() {
     let success_rate = (success as f32 * 100.0) / (args.trials as f32);
     let avg_fish: f64 = fish_eaten.iter().sum::<u64>() as f64 / fish_eaten.len() as f64;
     let avg_time = times.iter().map(|t| *t as u64).sum::<u64>() as f64 / times.len() as f64;
-    println!("success rate: {}", success_rate);
+    println!("success rate: {:.2}%", success_rate);
     println!("avg fish eaten: {:.1}", avg_fish);
-    println!("avg time: {:.1}", avg_time);
+    println!("avg time: {:.1} ticks", avg_time);
 
     if args.histogram {
         generate_histogram(&times, &fish_eaten);
