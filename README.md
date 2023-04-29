@@ -2,16 +2,41 @@
 
 ## Corrupted Hunllef Simulator
 
-Simulator for the Corrupted Hunllef fight in OSRS. The goal is  to predict food
-needed and time taken for a perfect executed fight.
+Simulator for the Corrupted Hunllef fight in OSRS. The goal is to predict food
+needed and time taken for a perfect executed fight. There are a number of
+options available for setting simulation conditions including trials, combat
+stats, armour tier, and eating strategies.
 
-Can set the following variables from the CLI
+Features:
+- Randomized player starting style (Ranged or Magic)
+- Player accuracy and defence rolls taking into account levels, prayer, weapon,
+  and armour
+- Hunllef accuracy and defence rolls taking into account its stats
+- Tornado spawn frequency
+- The time cost for healing
+- The ability to tick eat attacks from Hunllef
+
+Limitations:
+- Does not account for player natural HP regeneration
+- Does not allow for melee simulation
+- Does not allow for prayers other than Rigour/Augury
+- Does not allow for redemption healing
+- Does not account for hit delay (time between attacking and hit being
+  registered)
+- **Assumes perfect play on behalf of the player (no off prayer attacks, no lost
+  ticks, no stomps, no damage from tornadoes**
+
+
+The following variables can be set via the CLI:
 ```
 Options:
   -t, --trials <TRIALS>        Number of simulations to complete [default: 100000]
-  -f, --fish <FISH>            Number of eat (heal 20 hp) [default: 12]
+  -f, --fish <FISH>            Number to eat (heal 20 hp) [default: 12]
   -a, --armour <ARMOUR>        Tier of CG armour [default: 1]
-  -l, --level <LEVEL>          Ranged/Magic/Def/HP level to use (same for all) [default: 99]
+      --defence <DEFENCE>      Level to use [default: 99]
+      --ranged <RANGED>        Level to use [default: 99]
+      --magic <MAGIC>          Level to use [default: 99]
+      --hp <HP>                Level to use [default: 99]
   -e, --eat-at-hp <EAT_AT_HP>  HP threshold to eat fish [default: 50]
       --histogram              Histogram values for times/fish_eaten
       --tick-eat               Simulate tick eating when hp is below Hunllef max
@@ -33,9 +58,9 @@ alive) and average (successful) completion time.
 cargo run --release -- --trials 1000000
 ```
 
-## Future features
+## Future features (in rough order of implementing)
 - use different prayers (ee, mystic might)
+- melee (halberd)
 - graphs (success rate by fish/lvl)
 - logging (annotated prints of individual kills)
-- set levels for each stat
-- melee (halberd)
+- redemption healing

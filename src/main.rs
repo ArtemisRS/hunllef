@@ -19,9 +19,21 @@ struct Cli {
     #[arg(short, long, default_value_t = 1)]
     armour: u8,
 
-    /// Ranged/Magic/Def/HP level to use (same for all)
-    #[arg(short, long, default_value_t = 99)]
-    level: u8,
+    /// Level to use
+    #[arg(long, default_value_t = 99)]
+    defence: u8,
+
+    /// Level to use
+    #[arg(long, default_value_t = 99)]
+    ranged: u8,
+
+    /// Level to use
+    #[arg(long, default_value_t = 99)]
+    magic: u8,
+
+    /// Level to use
+    #[arg(long, default_value_t = 99)]
+    hp: u8,
 
     /// HP threshold to eat fish
     #[arg(short, long, default_value_t = 50)]
@@ -52,6 +64,18 @@ enum Prayer {
     Piety,
 }
 
+#[allow(unused)]
+#[derive(Debug, Clone, Copy)]
+struct Levels {
+    attack: u8,
+    strength: u8,
+    defence: u8,
+    ranged: u8,
+    magic: u8,
+    prayer: u8,
+    hp: u8,
+}
+
 #[derive(Debug, Clone, Copy)]
 struct Setup {
     weapon: Weapon,
@@ -63,7 +87,7 @@ struct Setup {
 }
 
 impl Setup {
-    fn new(weapon: Weapon, prayer: Prayer, level: u8, armour_tier: u8) -> Setup {
+    fn new(weapon: Weapon, prayer: Prayer, levels: &Levels, armour_tier: u8) -> Setup {
         fn effective_level(level: u8, prayer_bonus: u8, weapon: Option<Weapon>) -> u16 {
             let extra_bonus = match weapon {
                 Some(Weapon::Bow) => 8,
@@ -91,16 +115,23 @@ impl Setup {
             Prayer::Augury => (25, 0, 25, 25),
             Prayer::Piety => (20, 23, 25, 0),
         };
-        let eff_acc_lvl = effective_level(level, prayer_acc, Some(weapon));
+
+        let (acc_lvl, dam_lvl) = match weapon {
+            Weapon::Bow => (levels.magic, levels.magic),
+            Weapon::Staff => (levels.magic, levels.magic),
+            Weapon::Halberd => (levels.attack, levels.strength),
+        };
+
+        let eff_acc_lvl = effective_level(acc_lvl, prayer_acc, Some(weapon));
         let acc_roll = eff_acc_lvl * (eq_acc + 64);
 
-        let eff_str_lvl = effective_level(level, prayer_str, Some(weapon));
+        let eff_str_lvl = effective_level(dam_lvl, prayer_str, Some(weapon));
         let max_hit = match weapon {
             Weapon::Bow | Weapon::Halberd => (eff_str_lvl * (eq_str + 64) + 320) / 640,
             Weapon::Staff => 39,
         };
 
-        let eff_def_lvl = effective_level(level, prayer_def, None);
+        let eff_def_lvl = effective_level(levels.defence, prayer_def, None);
         let rdr = eff_def_lvl * (armour_def + 64);
 
         let magic_def_wep = if weapon == Weapon::Staff {
@@ -108,7 +139,7 @@ impl Setup {
         } else {
             None
         };
-        let eff_magic_lvl = effective_level(level, prayer_def_magic, magic_def_wep);
+        let eff_magic_lvl = effective_level(levels.magic, prayer_def_magic, magic_def_wep);
 
         let eff_magic_def_lvl = eff_def_lvl * 3 / 10 + eff_magic_lvl * 7 / 10;
         let mdr = eff_magic_def_lvl * (armour_def + 64);
@@ -341,8 +372,18 @@ fn generate_histogram(times: &[u16], fish_eaten: &[u64]) {
 fn main() {
     let args = Cli::parse();
 
-    let range = Setup::new(Weapon::Bow, Prayer::Rigour, args.level, args.armour);
-    let mage = Setup::new(Weapon::Staff, Prayer::Augury, args.level, args.armour);
+    let levels = Levels {
+        attack: 99,
+        strength: 99,
+        defence: args.defence,
+        ranged: args.ranged,
+        magic: args.magic,
+        prayer: 99,
+        hp: args.hp,
+    };
+
+    let range = Setup::new(Weapon::Bow, Prayer::Rigour, &levels, args.armour);
+    let mage = Setup::new(Weapon::Staff, Prayer::Augury, &levels, args.armour);
 
     let mut times = Vec::new();
     let mut fish_rem = Vec::new();
@@ -351,7 +392,7 @@ fn main() {
 
     for _ in 0..args.trials {
         //println!("loop {n}");
-        let mut player = Player::new(range, mage, args.level as u16, args.fish);
+        let mut player = Player::new(range, mage, levels.hp as u16, args.fish);
         let mut hunllef = Hunllef::new(args.armour);
         let mut time: u16 = 0; //elapsed time for this trial
 
@@ -397,7 +438,7 @@ fn main() {
         }
 
         fish_rem.push(player.fish); //have the count include failure cases
-        if player.hp > 0 && hunllef.hp <= 0 {
+        if player.hp > 0 && hunllef.hp == 0 {
             success += 1;
             times.push(time);
             //fish_rem.push(player.fish);
