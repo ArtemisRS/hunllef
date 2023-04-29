@@ -12,6 +12,8 @@ Features:
 - Player accuracy and defence rolls taking into account levels, prayer, weapon,
   and armour
 - Hunllef accuracy and defence rolls taking into account its stats
+- Using either Rigour or Eagle Eye (with Steel Skin) with Ranged
+- Using either Augury or Mystic Might (with Steel Skin) with Ranged
 - Tornado spawn frequency
 - The time cost for healing
 - The ability to tick eat attacks from Hunllef
@@ -19,7 +21,6 @@ Features:
 Limitations:
 - Does not account for player natural HP regeneration
 - Does not allow for melee simulation
-- Does not allow for prayers other than Rigour/Augury
 - Does not allow for redemption healing
 - Does not account for hit delay (time between attacking and hit being
   registered)
@@ -30,16 +31,20 @@ Limitations:
 The following variables can be set via the CLI:
 ```
 Options:
-  -t, --trials <TRIALS>        Number of simulations to complete [default: 100000]
-  -f, --fish <FISH>            Number to eat (heal 20 hp) [default: 12]
-  -a, --armour <ARMOUR>        Tier of CG armour [default: 1]
-      --defence <DEFENCE>      Level to use [default: 99]
-      --ranged <RANGED>        Level to use [default: 99]
-      --magic <MAGIC>          Level to use [default: 99]
-      --hp <HP>                Level to use [default: 99]
-  -e, --eat-at-hp <EAT_AT_HP>  HP threshold to eat fish [default: 50]
-      --histogram              Histogram values for times/fish_eaten
-      --tick-eat               Simulate tick eating when hp is below Hunllef max
+  -t, --trials <TRIALS>                Number of simulations to complete [default: 100000]
+  -f, --fish <FISH>                    Number to eat (heal 20 hp) [default: 12]
+  -a, --armour <ARMOUR>                Tier of CG armour [default: 1]
+      --defence <DEFENCE>              Defence Level to use [default: 99]
+      --ranged <RANGED>                Ranged Level to use [default: 99]
+      --magic <MAGIC>                  Magic Level to use [default: 99]
+      --hp <HP>                        HP Level to use [default: 99]
+      --ranged-prayer <RANGED_PRAYER>  Set the Ranged prayer [default: rigour]
+                                         [possible values: rigour, eagle-eye]
+      --magic-prayer <MAGIC_PRAYER>    Set the Magic prayer [default: augury]
+                                         [possible values: augury, mystic-might]
+  -e, --eat-at-hp <EAT_AT_HP>          HP threshold to eat fish [default: 50]
+      --tick-eat                       Simulate tick eating when hp is below Hunllef max
+      --histogram                      Histogram values for times/fish_eaten
 ```
 
 Will output percent of successful trials (defined as Hunllef dead and player

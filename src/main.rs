@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use fastrand::Rng;
 use hdrhistogram::Histogram;
 
@@ -19,33 +19,41 @@ struct Cli {
     #[arg(short, long, default_value_t = 1)]
     armour: u8,
 
-    /// Level to use
+    /// Defence Level to use
     #[arg(long, default_value_t = 99)]
     defence: u8,
 
-    /// Level to use
+    /// Ranged Level to use
     #[arg(long, default_value_t = 99)]
     ranged: u8,
 
-    /// Level to use
+    /// Magic Level to use
     #[arg(long, default_value_t = 99)]
     magic: u8,
 
-    /// Level to use
+    /// HP Level to use
     #[arg(long, default_value_t = 99)]
     hp: u8,
+
+    /// Set the Ranged prayer
+    #[arg(long, value_enum, default_value_t = Prayer::Rigour)]
+    ranged_prayer: Prayer,
+
+    /// Set the Magic prayer
+    #[arg(long, value_enum, default_value_t = Prayer::Augury)]
+    magic_prayer: Prayer,
 
     /// HP threshold to eat fish
     #[arg(short, long, default_value_t = 50)]
     eat_at_hp: u16,
 
-    /// Histogram values for times/fish_eaten
-    #[arg(long, default_value_t = false)]
-    histogram: bool,
-
     ///Simulate tick eating when hp is below Hunllef max
     #[arg(long, default_value_t = false)]
     tick_eat: bool,
+
+    /// Histogram values for times/fish_eaten
+    #[arg(long, default_value_t = false)]
+    histogram: bool,
 }
 
 #[allow(unused)]
@@ -57,11 +65,13 @@ enum Weapon {
 }
 
 #[allow(unused)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, ValueEnum)]
 enum Prayer {
     Rigour,
     Augury,
     Piety,
+    EagleEye,
+    MysticMight,
 }
 
 #[allow(unused)]
@@ -114,6 +124,8 @@ impl Setup {
             Prayer::Rigour => (20, 23, 25, 0),
             Prayer::Augury => (25, 0, 25, 25),
             Prayer::Piety => (20, 23, 25, 0),
+            Prayer::EagleEye => (15, 15, 15, 0),
+            Prayer::MysticMight => (15, 0, 15, 15),
         };
 
         let (acc_lvl, dam_lvl) = match weapon {
@@ -382,8 +394,8 @@ fn main() {
         hp: args.hp,
     };
 
-    let range = Setup::new(Weapon::Bow, Prayer::Rigour, &levels, args.armour);
-    let mage = Setup::new(Weapon::Staff, Prayer::Augury, &levels, args.armour);
+    let range = Setup::new(Weapon::Bow, args.ranged_prayer, &levels, args.armour);
+    let mage = Setup::new(Weapon::Staff, args.magic_prayer, &levels, args.armour);
 
     let mut times = Vec::new();
     let mut fish_rem = Vec::new();
