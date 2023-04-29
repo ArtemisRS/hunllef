@@ -11,7 +11,7 @@ struct Cli {
     #[arg(short, long, default_value_t = 100_000)]
     trials: u32,
 
-    /// Number of eat (heal 20 hp)
+    /// Number to eat (heal 20 hp)
     #[arg(short, long, default_value_t = 12)]
     fish: u8,
 
@@ -97,7 +97,7 @@ impl Setup {
         let effective_strength_level = effective_level(level, prayer_strength, Some(weapon));
         let max_hit = match weapon {
             Weapon::Bow | Weapon::Halberd => {
-                (effective_strength_level * (equipment_strength as u16 + 64) + 320) / 640
+                (effective_strength_level * (equipment_strength + 64) + 320) / 640
             }
             Weapon::Staff => 39,
         };
@@ -114,9 +114,9 @@ impl Setup {
         }
     }
 
-    fn attack(self, rng: &Rng, hunllef_defensive_roll: u16) -> i16 {
+    fn attack(self, rng: &Rng, hunllef_defensive_roll: u16) -> u16 {
         if rng.u16(0..self.accuracy_roll) > rng.u16(0..hunllef_defensive_roll) {
-            rng.u16(0..self.max_hit + 1) as i16 //range is not inclusive of top
+            rng.u16(0..self.max_hit + 1) //range is not inclusive of top
         } else {
             0
         }
@@ -125,13 +125,13 @@ impl Setup {
 
 #[derive(Debug, Clone, Copy)]
 struct Hunllef {
+    hp: u16,
     max_hit: u16,
     attack_delay: u8, //ticks
     accuracy_roll: u16,
     defensive_roll: u16,
     tornado_cd: u8, //number of attacks until a tornado attack
-    hp: i16,
-    attack_cd: u8, //ticks
+    attack_cd: u8,  //ticks
 }
 
 impl Hunllef {
@@ -221,7 +221,7 @@ impl Player {
         }
     }
 
-    fn attack(&mut self, rng: &Rng, hunllef_defensive_roll: u16) -> Option<i16> {
+    fn attack(&mut self, rng: &Rng, hunllef_defensive_roll: u16) -> Option<u16> {
         if self.attack_cd == 0 {
             //dbg!(self);
             if self.attacks_left == 0 {
@@ -311,7 +311,11 @@ fn main() {
             //println!("t={:0>3}, php: {}, hhp: {}", time, player.hp, hunllef.hp);
             //println!("  {}, {}", player.attack_cd, player.attacks_left);
             if let Some(damage) = player.attack(&rng, hunllef.defensive_roll) {
-                hunllef.hp -= damage;
+                if hunllef.hp < damage {
+                    hunllef.hp = 0;
+                } else {
+                    hunllef.hp -= damage;
+                }
                 //println!("  hunllef takes {damage} damage");
             }
 
