@@ -255,6 +255,12 @@ impl Player {
 }
 
 fn generate_histogram(times: &[u16], fish_eaten: &[u64]) {
+    fn tick_to_secs(ticks: u64) -> String {
+        let min = ticks / 100;
+        let sec = ticks * 3 / 5 % 60;
+        format!("{}:{:#02}", min, sec)
+    }
+
     let mut hist = Histogram::<u64>::new(3).unwrap();
     for num in times {
         hist.record(*num as u64).unwrap();
@@ -355,12 +361,6 @@ fn main() {
     if args.histogram {
         generate_histogram(&times, &fish_eaten);
     }
-}
-
-fn tick_to_secs(ticks: u64) -> String {
-    let min = ticks / 100;
-    let sec = ticks * 3 / 5 % 60;
-    format!("{}:{:#02}", min, sec)
 }
 
 #[cfg(test)]
