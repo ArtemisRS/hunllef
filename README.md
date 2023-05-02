@@ -13,7 +13,7 @@ Features:
   and armour
 - Hunllef accuracy and defence rolls taking into account its stats
 - Using either Rigour or Eagle Eye (with Steel Skin) with Ranged
-- Using either Augury or Mystic Might (with Steel Skin) with Ranged
+- Using either Augury or Mystic Might (with Steel Skin) with Magic
 - Tornado spawn frequency
 - The time cost for healing
 - The ability to tick eat attacks from Hunllef
@@ -96,8 +96,8 @@ sys     0m0.030s
 ```
 
 ## Future features (in rough order of implementing)
-- use different prayers (ee, mystic might)
 - melee (halberd)
 - graphs (success rate by fish/lvl)
 - logging (annotated prints of individual kills)
 - redemption healing
+- 5:1
