@@ -7,7 +7,7 @@ use hdrhistogram::Histogram;
 #[command(version = "0.1")]
 #[command(about = "Simulates the Corrupted Hunllef fight", long_about = None)]
 struct Cli {
-    /// Number of simulations to complete
+    /// Number of simulations
     #[arg(short, long, default_value_t = 100_000)]
     trials: u32,
 
@@ -19,29 +19,45 @@ struct Cli {
     #[arg(short, long, default_value_t = 1)]
     armour: u8,
 
-    /// Defence Level to use
+    ///1st setup weapon
+    #[arg(long, value_enum, default_value_t = Weapon::Bow)]
+    setup1: Weapon,
+
+    ///2nd setup weapon
+    #[arg(long, value_enum, default_value_t = Weapon::Staff)]
+    setup2: Weapon,
+
+    ///1st setup prayer
+    #[arg(long, value_enum, default_value_t = Prayer::Rigour)]
+    setup1_prayer: Prayer,
+
+    ///2nd setup prayer
+    #[arg(long, value_enum, default_value_t = Prayer::Augury)]
+    setup2_prayer: Prayer,
+
+    /// Player Attack Level
+    #[arg(long, default_value_t = 99)]
+    attack: u8,
+
+    /// Player Strength Level
+    #[arg(long, default_value_t = 99)]
+    strength: u8,
+
+    /// Player Defence Level
     #[arg(long, default_value_t = 99)]
     defence: u8,
 
-    /// Ranged Level to use
+    /// Player Ranged Level
     #[arg(long, default_value_t = 99)]
     ranged: u8,
 
-    /// Magic Level to use
+    /// Player Magic Level
     #[arg(long, default_value_t = 99)]
     magic: u8,
 
-    /// HP Level to use
+    /// Player HP Level
     #[arg(long, default_value_t = 99)]
     hp: u8,
-
-    /// Set the Ranged prayer
-    #[arg(long, value_enum, default_value_t = Prayer::Rigour)]
-    ranged_prayer: Prayer,
-
-    /// Set the Magic prayer
-    #[arg(long, value_enum, default_value_t = Prayer::Augury)]
-    magic_prayer: Prayer,
 
     /// HP threshold to eat fish
     #[arg(short, long, default_value_t = 50)]
@@ -57,7 +73,7 @@ struct Cli {
 }
 
 #[allow(unused)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 enum Weapon {
     Bow,
     Staff,
@@ -275,40 +291,40 @@ impl Hunllef {
 }
 
 #[derive(Debug, Clone, Copy)]
-struct Player {
-    range: Setup,
-    mage: Setup,
+struct Player<'a> {
+    setup1: &'a Setup,
+    setup2: &'a Setup,
     hp: u16,
     fish: u8,
     attack_cd: u8,    //ticks
     attacks_left: u8, //before switching styles
-    current: Weapon,
+    current: &'a Setup,
 }
 
-impl Player {
-    fn new(range: Setup, mage: Setup, hp: u16, fish: u8) -> Player {
+impl <'a> Player<'a> {
+    fn new<'s>(setup1: &'s Setup, setup2: &'s Setup, hp: u16, fish: u8) -> Player<'s> {
         let attack_cd = 0;
         let attacks_left = 6;
         Player {
-            range,
-            mage,
+            setup1,
+            setup2,
             hp,
             fish,
             attack_cd,
             attacks_left,
             current: if fastrand::bool() {
-                range.weapon
+                setup1
             } else {
-                mage.weapon
+                setup2
             },
         }
     }
 
-    fn switch_weapon(mut self) {
-        if self.current == self.range.weapon {
-            self.current = self.mage.weapon;
+    fn switch_setup(mut self) {
+        if self.current.weapon == self.setup1.weapon {
+            self.current = self.setup2;
         } else {
-            self.current = self.range.weapon;
+            self.current = self.setup1;
         }
     }
 
@@ -316,14 +332,10 @@ impl Player {
         if self.attack_cd == 0 {
             //dbg!(self);
             if self.attacks_left == 0 {
-                self.switch_weapon();
+                self.switch_setup();
                 self.attacks_left = 6;
             }
-            let setup: &Setup = if self.current == self.range.weapon {
-                &self.range
-            } else {
-                &self.mage
-            };
+            let setup = self.current;
 
             self.attack_cd += setup.attack_delay - 1; //first tick of delay is
                                                       //the attack
@@ -386,8 +398,8 @@ fn main() {
     let args = Cli::parse();
 
     let levels = Levels {
-        attack: 99,
-        strength: 99,
+        attack: args.attack,
+        strength: args.strength,
         defence: args.defence,
         ranged: args.ranged,
         magic: args.magic,
@@ -395,17 +407,19 @@ fn main() {
         hp: args.hp,
     };
 
-    let range = Setup::new(Weapon::Bow, args.ranged_prayer, &levels, args.armour);
-    let mage = Setup::new(Weapon::Staff, args.magic_prayer, &levels, args.armour);
+    let setup1 = Setup::new(args.setup1, args.setup1_prayer, &levels, args.armour);
+    let setup2 = Setup::new(args.setup2, args.setup2_prayer, &levels, args.armour);
 
     let mut times = Vec::new();
     let mut fish_rem = Vec::new();
     let mut success = 0;
     let rng = fastrand::Rng::new();
 
+    // dbg!(Player::new(&setup1, &setup2, levels.hp as u16, args.fish));
+
     for _ in 0..args.trials {
         //println!("loop {n}");
-        let mut player = Player::new(range, mage, levels.hp as u16, args.fish);
+        let mut player = Player::new(&setup1, &setup2, levels.hp as u16, args.fish);
         let mut hunllef = Hunllef::new(args.armour);
         let mut time: u16 = 0; //elapsed time for this trial
 
@@ -421,11 +435,7 @@ fn main() {
                 //println!("  hunllef takes {damage} damage");
             }
 
-            let setup: &Setup = if player.current == player.range.weapon {
-                &player.range
-            } else {
-                &player.mage
-            };
+            let setup = player.current;
 
             if let Some(damage) = hunllef.attack(&rng, setup.rdr, setup.mdr) {
                 let starting_hp = player.hp;
