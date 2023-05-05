@@ -67,6 +67,10 @@ struct Cli {
     #[arg(long, default_value_t = false)]
     tick_eat: bool,
 
+    ///Account for ticks lost by player
+    #[arg(long, default_value_t = 0)]
+    lost_ticks: u8,
+
     /// Histogram values for times/fish_eaten
     #[arg(long, default_value_t = false)]
     histogram: bool,
@@ -302,8 +306,8 @@ struct Player<'a> {
 }
 
 impl <'a> Player<'a> {
-    fn new<'s>(setup1: &'s Setup, setup2: &'s Setup, hp: u16, fish: u8) -> Player<'s> {
-        let attack_cd = 0;
+    fn new<'s>(setup1: &'s Setup, setup2: &'s Setup, hp: u16, fish: u8, lost_ticks: u8) -> Player<'s> {
+        let attack_cd = lost_ticks;
         let attacks_left = 6;
         Player {
             setup1,
@@ -419,7 +423,7 @@ fn main() {
 
     for _ in 0..args.trials {
         //println!("loop {n}");
-        let mut player = Player::new(&setup1, &setup2, levels.hp as u16, args.fish);
+        let mut player = Player::new(&setup1, &setup2, levels.hp as u16, args.fish, args.lost_ticks);
         let mut hunllef = Hunllef::new(args.armour);
         let mut time: u16 = 0; //elapsed time for this trial
 

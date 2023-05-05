@@ -53,6 +53,7 @@ Options:
       --hp <HP>                        Player HP Level [default: 99]
   -e, --eat-at-hp <EAT_AT_HP>          HP threshold to eat fish [default: 50]
       --tick-eat                       Simulate tick eating when hp is below Hunllef max
+      --lost-ticks <LOST_TICKS>        Account for ticks lost by player [default: 0]
       --histogram                      Histogram values for times/fish_eaten
   -h, --help                           Print help
   -V, --version                        Print version
@@ -110,10 +111,9 @@ sys	0m0.022s
 ```
 
 ## Future features (in rough order of implementing)
-- allowing for tick losses
-- graphs (success rate by fish/lvl)
+- max time (additionally measure success by completion within a certain time)
 - logging (annotated prints of individual kills)
 - Lower tier weapons
 - redemption healing
 - 5:1
-
+- graphs (success rate by fish/lvl)
