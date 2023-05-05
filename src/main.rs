@@ -305,8 +305,14 @@ struct Player<'a> {
     current: &'a Setup,
 }
 
-impl <'a> Player<'a> {
-    fn new<'s>(setup1: &'s Setup, setup2: &'s Setup, hp: u16, fish: u8, lost_ticks: u8) -> Player<'s> {
+impl<'a> Player<'a> {
+    fn new<'s>(
+        setup1: &'s Setup,
+        setup2: &'s Setup,
+        hp: u16,
+        fish: u8,
+        lost_ticks: u8,
+    ) -> Player<'s> {
         let attack_cd = lost_ticks;
         let attacks_left = 6;
         Player {
@@ -316,11 +322,7 @@ impl <'a> Player<'a> {
             fish,
             attack_cd,
             attacks_left,
-            current: if fastrand::bool() {
-                setup1
-            } else {
-                setup2
-            },
+            current: if fastrand::bool() { setup1 } else { setup2 },
         }
     }
 
@@ -423,7 +425,13 @@ fn main() {
 
     for _ in 0..args.trials {
         //println!("loop {n}");
-        let mut player = Player::new(&setup1, &setup2, levels.hp as u16, args.fish, args.lost_ticks);
+        let mut player = Player::new(
+            &setup1,
+            &setup2,
+            levels.hp as u16,
+            args.fish,
+            args.lost_ticks,
+        );
         let mut hunllef = Hunllef::new(args.armour);
         let mut time: u16 = 0; //elapsed time for this trial
 
@@ -494,14 +502,14 @@ mod tests {
     use crate::*;
 
     const LVLS: Levels = Levels {
-            attack: 99,
-            strength: 99,
-            defence: 99,
-            ranged: 99,
-            magic: 99,
-            prayer: 99,
-            hp: 99,
-        };
+        attack: 99,
+        strength: 99,
+        defence: 99,
+        ranged: 99,
+        magic: 99,
+        prayer: 99,
+        hp: 99,
+    };
 
     #[test]
     fn t1armour_bow() {
@@ -598,6 +606,4 @@ mod tests {
         assert_eq!(setup.rdr, 28800);
         assert_eq!(setup.mdr, 27360);
     }
-
-
 }
