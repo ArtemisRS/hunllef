@@ -3,24 +3,25 @@
 ## Corrupted Hunllef Simulator
 
 Simulator for the Corrupted Hunllef fight in OSRS. The goal is to predict food
-needed and time taken for a perfect executed fight. There are a number of
-options available for setting simulation conditions including trials, combat
-stats, armour tier, and eating strategies.
+needed and time taken for a perfectly executed fight. There are a number of
+options available for setting simulation conditions including number of trials,
+combat stats, combat styles, armour tier, and eating strategies.
 
 Features:
-- Randomized player starting style (Ranged or Magic)
-- Player accuracy and defence rolls taking into account levels, prayer, weapon,
+- All 3 player combat styles supported (Melee, Ranged, and Magic)
+- Player accuracy and defence rolls take into account levels, prayer, weapon,
   and armour
-- Hunllef accuracy and defence rolls taking into account its stats
-- Using either Rigour or Eagle Eye (with Steel Skin) with Ranged
-- Using either Augury or Mystic Might (with Steel Skin) with Magic
+- Hunllef accuracy and defence rolls take into account its stats
+- Supports Piety/Rigour/Augury as well as Eagle Eye and Mystic Might (which are
+  coupled with Steel Skin)
 - Tornado spawn frequency
-- The time cost for healing
+- The time taken for healing
 - The ability to tick eat attacks from Hunllef
+- Histogram produced for food used and kill times
 
 Limitations:
+- Does not allow for lower tier weapons
 - Does not account for player natural HP regeneration
-- Does not allow for melee simulation
 - Does not allow for redemption healing
 - Does not account for hit delay (time between attacking and hit being
   registered)
@@ -30,21 +31,32 @@ Limitations:
 
 The following variables can be set via the CLI:
 ```
+Usage: hunllef [OPTIONS]
+
 Options:
-  -t, --trials <TRIALS>                Number of simulations to complete [default: 100000]
+  -t, --trials <TRIALS>                Number of simulations [default: 100000]
   -f, --fish <FISH>                    Number to eat (heal 20 hp) [default: 12]
   -a, --armour <ARMOUR>                Tier of CG armour [default: 1]
-      --defence <DEFENCE>              Defence Level to use [default: 99]
-      --ranged <RANGED>                Ranged Level to use [default: 99]
-      --magic <MAGIC>                  Magic Level to use [default: 99]
-      --hp <HP>                        HP Level to use [default: 99]
-      --ranged-prayer <RANGED_PRAYER>  Set the Ranged prayer [default: rigour]
-                                         [possible values: rigour, eagle-eye]
-      --magic-prayer <MAGIC_PRAYER>    Set the Magic prayer [default: augury]
-                                         [possible values: augury, mystic-might]
+      --setup1 <SETUP1>                1st setup weapon [default: bow]
+                                         [possible values: bow, staff, halberd]
+      --setup2 <SETUP2>                2nd setup weapon [default: staff]
+                                         [possible values: bow, staff, halberd]
+      --setup1-prayer <SETUP1_PRAYER>  1st setup prayer [default: rigour]
+                                         [possible values: rigour, augury, piety, eagle-eye, mystic-might]
+      --setup2-prayer <SETUP2_PRAYER>  2nd setup prayer [default: augury]
+                                         [possible values: rigour, augury, piety, eagle-eye, mystic-might]
+      --attack <ATTACK>                Player Attack Level [default: 99]
+      --strength <STRENGTH>            Player Strength Level [default: 99]
+      --defence <DEFENCE>              Player Defence Level [default: 99]
+      --ranged <RANGED>                Player Ranged Level [default: 99]
+      --magic <MAGIC>                  Player Magic Level [default: 99]
+      --hp <HP>                        Player HP Level [default: 99]
   -e, --eat-at-hp <EAT_AT_HP>          HP threshold to eat fish [default: 50]
       --tick-eat                       Simulate tick eating when hp is below Hunllef max
       --histogram                      Histogram values for times/fish_eaten
+  -h, --help                           Print help
+  -V, --version                        Print version
+
 ```
 
 Will output percent of successful trials (defined as Hunllef dead and player
@@ -66,38 +78,42 @@ cargo run --release -- --trials 1000000
 ### Sample run at the point a player might be starting CG
 
 ```
-$ time cargo run --release -- -t 1000000 --histogram --fish 25 --ranged 92 --magic 92 --hp 85 --defence 75 --ranged-prayer eagle-eye --magic-prayer mystic-might
-    Finished release [optimized] target(s) in 0.16s
-     Running `target/release/hunllef -t 1000000 --histogram --fish 25 --ranged 92 --magic 92 --hp 85 --defence 75 --ranged-prayer eagle-eye --magic-prayer mystic-might`
-success rate: 99.99%
-avg fish eaten: 14.8
-avg time: 376.6 ticks
+$ time cargo run --release -- -t 1000000 --histogram --attack 78 --strength 85 --defence 75 --ranged 92 --magic 92 --hp 85 --fish 20 --setup1 bow --setup1-prayer eagle-eye --setup2 staff --setup2-prayer mystic-might
+    Finished release [optimized] target(s) in 0.07s
+     Running `target/release/hunllef -t 1000000 --histogram --attack 78 --strength 85 --defence 75 --ranged 92 --magic 92 --hp 85 --fish 20 --setup1 bow --setup1-prayer eagle-eye --setup2 staff --setup2-prayer mystic-might`
+success rate: 99.43%
+avg fish eaten: 14.7
+avg time: 375.9 ticks
+
 Histograms
-Time (m:ss) - 999926 samples
+Time (m:ss) - 994324 samples
   .5'th %: 2:38
  2.5'th %: 2:51
 16.7'th %: 3:16
 50.0'th %: 3:44
-83.0'th %: 4:15
-97.5'th %: 4:48
-99.5'th %: 5:10
+83.0'th %: 4:14
+97.5'th %: 4:46
+99.5'th %: 5:04
+
 Fish eaten - 1000000 samples (includes failures)
   .5'th %: 8
  2.5'th %: 9
 16.7'th %: 12
 50.0'th %: 15
 83.0'th %: 18
-97.5'th %: 21
-99.5'th %: 24
+97.5'th %: 20
+99.5'th %: 20
 
-real    0m2.034s
-user    0m1.699s
-sys     0m0.030s
+real	0m1.988s
+user	0m1.725s
+sys	0m0.022s
 ```
 
 ## Future features (in rough order of implementing)
-- melee (halberd)
+- allowing for tick losses
 - graphs (success rate by fish/lvl)
 - logging (annotated prints of individual kills)
+- Lower tier weapons
 - redemption healing
 - 5:1
+
