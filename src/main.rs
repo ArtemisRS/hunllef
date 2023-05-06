@@ -71,6 +71,10 @@ struct Cli {
     #[arg(long, default_value_t = 0)]
     lost_ticks: u8,
 
+    /// Max time for successful run (in ticks)
+    #[arg(long, default_value_t = 6000)]
+    max_time: u16,
+
     /// Histogram values for times/fish_eaten
     #[arg(long, default_value_t = false)]
     histogram: bool,
@@ -144,6 +148,7 @@ fn main() {
         &hunllef,
         args.eat_at_hp,
         args.tick_eat,
+        args.max_time,
     );
 
     let success_rate = (success as f32 * 100.0) / (args.trials as f32);

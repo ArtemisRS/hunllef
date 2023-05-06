@@ -17,6 +17,7 @@ Features:
 - Tornado spawn frequency
 - The time taken for healing
 - The ability to tick eat attacks from Hunllef
+- Set a maximum time for a run to take to be counted as a success
 - Histogram produced for food used and kill times
 
 Limitations:
@@ -54,6 +55,7 @@ Options:
   -e, --eat-at-hp <EAT_AT_HP>          HP threshold to eat fish [default: 50]
       --tick-eat                       Simulate tick eating when hp is below Hunllef max
       --lost-ticks <LOST_TICKS>        Account for ticks lost by player [default: 0]
+      --max-time <MAX_TIME>            Max time for successful run (in ticks) [default: 6000]
       --histogram                      Histogram values for times/fish_eaten
   -h, --help                           Print help
   -V, --version                        Print version
@@ -111,7 +113,6 @@ sys	0m0.022s
 ```
 
 ## Future features (in rough order of implementing)
-- max time (additionally measure success by completion within a certain time)
 - logging (annotated prints of individual kills)
 - Lower tier weapons
 - redemption healing

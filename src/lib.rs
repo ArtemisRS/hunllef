@@ -292,6 +292,7 @@ pub fn run_simulation(
     hunllef: &Hunllef,
     eat_at_hp: u16,
     tick_eat: bool,
+    max_time: u16,
 ) -> (u32, Vec<u64>, Vec<u16>) {
     let mut times = Vec::new();
     let mut fish_rem = Vec::new();
@@ -347,6 +348,11 @@ pub fn run_simulation(
             }
 
             time += 1;
+
+            if time > max_time {
+                player.hp = 0;
+                break;
+            }
         }
 
         fish_rem.push(player.fish); //have the count include failure cases

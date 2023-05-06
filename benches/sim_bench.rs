@@ -20,7 +20,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     let hunllef = Hunllef::new(1);
 
     c.bench_function("10k basic", |b| {
-        b.iter(|| hunllef::run_simulation(10_000, &player, &hunllef, 50, false))
+        b.iter(|| hunllef::run_simulation(10_000, &player, &hunllef, 50, false, 6000))
     });
 }
 
