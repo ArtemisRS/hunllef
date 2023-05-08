@@ -27,6 +27,14 @@ struct Cli {
     #[arg(long, value_enum, default_value_t = Weapon::Staff)]
     setup2: Weapon,
 
+    ///1st weapon tier (1, 2, 3)
+    #[arg(long, default_value_t = 3)]
+    setup1_tier: u8,
+
+    ///2nd weapon tier (1, 2, 3)
+    #[arg(long, default_value_t = 3)]
+    setup2_tier: u8,
+
     ///1st setup prayer
     #[arg(long, value_enum, default_value_t = Prayer::Rigour)]
     setup1_prayer: Prayer,
@@ -129,8 +137,20 @@ fn main() {
         hp: args.hp,
     };
 
-    let setup1 = Setup::new(args.setup1, args.setup1_prayer, &levels, args.armour);
-    let setup2 = Setup::new(args.setup2, args.setup2_prayer, &levels, args.armour);
+    let setup1 = Setup::new(
+        args.setup1,
+        args.setup1_tier,
+        args.setup1_prayer,
+        &levels,
+        args.armour,
+    );
+    let setup2 = Setup::new(
+        args.setup2,
+        args.setup2_tier,
+        args.setup2_prayer,
+        &levels,
+        args.armour,
+    );
 
     let player = Player::new(
         &setup1,

@@ -9,8 +9,8 @@ combat stats, combat styles, armour tier, and eating strategies.
 
 Features:
 - All 3 player combat styles supported (Melee, Ranged, and Magic)
-- Player accuracy and defence rolls take into account levels, prayer, weapon,
-  and armour
+- Player accuracy and defence rolls take into account levels, prayer,
+  weapon/tier, and armour
 - Hunllef accuracy and defence rolls take into account its stats
 - Supports Piety/Rigour/Augury as well as Eagle Eye and Mystic Might (which are
   coupled with Steel Skin)
@@ -21,7 +21,6 @@ Features:
 - Histogram produced for food used and kill times
 
 Limitations:
-- Does not allow for lower tier weapons
 - Does not account for player natural HP regeneration
 - Does not allow for redemption healing
 - Does not account for hit delay (time between attacking and hit being
@@ -42,6 +41,8 @@ Options:
                                          [possible values: bow, staff, halberd]
       --setup2 <SETUP2>                2nd setup weapon [default: staff]
                                          [possible values: bow, staff, halberd]
+      --setup1-tier <SETUP1_TIER>      1st weapon tier (1, 2, 3) [default: 3]
+      --setup2-tier <SETUP2_TIER>      2nd weapon tier (1, 2, 3) [default: 3]
       --setup1-prayer <SETUP1_PRAYER>  1st setup prayer [default: rigour]
                                          [possible values: rigour, augury, piety, eagle-eye, mystic-might]
       --setup2-prayer <SETUP2_PRAYER>  2nd setup prayer [default: augury]
@@ -114,7 +115,6 @@ sys	0m0.022s
 
 ## Future features (in rough order of implementing)
 - logging (annotated prints of individual kills)
-- Lower tier weapons
-- redemption healing
 - 5:1
+- redemption healing
 - graphs (success rate by fish/lvl)
