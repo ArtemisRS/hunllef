@@ -68,7 +68,7 @@ struct Cli {
     hp: u8,
 
     /// HP threshold to eat fish
-    #[arg(short, long, default_value_t = 50)]
+    #[arg(long, default_value_t = 50)]
     eat_at_hp: u16,
 
     ///Simulate tick eating when hp is below Hunllef max

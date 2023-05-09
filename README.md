@@ -5,7 +5,7 @@
 Simulator for the Corrupted Hunllef fight in OSRS. The goal is to predict food
 needed and time taken for a perfectly executed fight. There are a number of
 options available for setting simulation conditions including number of trials,
-combat stats, combat styles, armour tier, and eating strategies.
+combat stats, combat styles, armour/weapon tiers, and eating strategies.
 
 Features:
 - All 3 player combat styles supported (Melee, Ranged, and Magic)
@@ -14,10 +14,10 @@ Features:
 - Hunllef accuracy and defence rolls take into account its stats
 - Supports Piety/Rigour/Augury as well as Eagle Eye and Mystic Might (which are
   coupled with Steel Skin)
-- Tornado spawn frequency
-- The time taken for healing
-- The ability to tick eat attacks from Hunllef
-- Set a maximum time for a run to take to be counted as a success
+- Accounts for tornado spawn frequency, time spent healing, and an estimate of
+  other lost ticks
+- Has the ability to tick eat attacks from Hunllef
+- Can set a maximum time for a run to take to be counted as a success
 - Histogram produced for food used and kill times
 
 Limitations:
@@ -25,8 +25,8 @@ Limitations:
 - Does not allow for redemption healing
 - Does not account for hit delay (time between attacking and hit being
   registered)
-- **Assumes perfect play on behalf of the player (no off prayer attacks, no lost
-  ticks, no stomps, no damage from tornadoes**
+- **Assumes perfect play on behalf of the player (no off prayer attacks, no
+  stomps, no damage from tornadoes**
 
 
 The following variables can be set via the CLI:
