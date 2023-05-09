@@ -47,14 +47,8 @@ impl Setup {
         levels: &Levels,
         armour_tier: u8,
     ) -> Setup {
-        fn effective_level(level: u8, prayer_bonus: u8, weapon: Option<Weapon>) -> u16 {
-            let extra_bonus = match weapon {
-                Some(Weapon::Bow) => 8,
-                Some(Weapon::Staff) => 11,
-                Some(Weapon::Halberd) => 11,
-                None => 8,
-            };
-            (level as u16) * (100 + prayer_bonus as u16) / 100 + extra_bonus
+        fn effective_level(level: u8, prayer_bonus: u8, stance_bonus: u8) -> u16 {
+            (level as u16) * (100 + prayer_bonus as u16) / 100 + 8 + stance_bonus as u16
         }
 
         let (armour_acc, armour_def) = match armour_tier {
@@ -68,7 +62,7 @@ impl Setup {
         let (weapon_acc, eq_str) = match (weapon, weapon_tier) {
             (Weapon::Bow, 3) => (172, 138),
             (Weapon::Staff, 3) => (184, 39),
-            (Weapon::Halberd, 3) => (168, 138),
+            (Weapon::Halberd, 3) => (166, 138),
             (Weapon::Bow, 2) => (118, 88),
             (Weapon::Staff, 2) => (128, 31),
             (Weapon::Halberd, 2) => (114, 88),
@@ -92,24 +86,22 @@ impl Setup {
             Weapon::Halberd => (levels.attack, levels.strength),
         };
 
-        let eff_acc_lvl = effective_level(acc_lvl, prayer_acc, Some(weapon));
+        let stance_bonus = if weapon == Weapon::Staff { 3 } else { 0 };
+        let eff_acc_lvl = effective_level(acc_lvl, prayer_acc, stance_bonus);
         let acc_roll = eff_acc_lvl * (eq_acc + 64);
 
-        let eff_str_lvl = effective_level(dam_lvl, prayer_str, Some(weapon));
+        let stance_bonus = if weapon == Weapon::Halberd { 3 } else { 0 };
+        let eff_str_lvl = effective_level(dam_lvl, prayer_str, stance_bonus);
         let max_hit = match weapon {
             Weapon::Bow | Weapon::Halberd => (eff_str_lvl * (eq_str + 64) + 320) / 640,
             Weapon::Staff => eq_str,
         };
 
-        let eff_def_lvl = effective_level(levels.defence, prayer_def, None);
+        let eff_def_lvl = effective_level(levels.defence, prayer_def, 0);
         let rdr = eff_def_lvl * (armour_def + 64);
 
-        let magic_def_wep = if weapon == Weapon::Staff {
-            Some(Weapon::Staff)
-        } else {
-            None
-        };
-        let eff_magic_lvl = effective_level(levels.magic, prayer_def_magic, magic_def_wep);
+        let stance_bonus = if weapon == Weapon::Staff { 3 } else { 0 };
+        let eff_magic_lvl = effective_level(levels.magic, prayer_def_magic, stance_bonus);
 
         let eff_magic_def_lvl = eff_def_lvl * 3 / 10 + eff_magic_lvl * 7 / 10;
         let mdr = eff_magic_def_lvl * (armour_def + 64);
@@ -401,7 +393,7 @@ mod tests {
     };
 
     #[test]
-    fn t1armour_bow() {
+    fn t1_bow() {
         let setup = Setup::new(Weapon::Bow, 1, Prayer::Rigour, &LVLS, 1);
         assert_eq!(setup.max_hit, 21);
         assert_eq!(setup.acc_roll, 19152);
@@ -410,7 +402,7 @@ mod tests {
     }
 
     #[test]
-    fn t2armour_bow() {
+    fn t2_bow() {
         let setup = Setup::new(Weapon::Bow, 2, Prayer::Rigour, &LVLS, 2);
         assert_eq!(setup.max_hit, 31);
         assert_eq!(setup.acc_roll, 26460);
@@ -419,7 +411,7 @@ mod tests {
     }
 
     #[test]
-    fn t3armour_bow() {
+    fn t3_bow() {
         let setup = Setup::new(Weapon::Bow, 3, Prayer::Rigour, &LVLS, 3);
         assert_eq!(setup.max_hit, 41);
         assert_eq!(setup.acc_roll, 34776);
@@ -428,7 +420,7 @@ mod tests {
     }
 
     #[test]
-    fn t1armour_staff() {
+    fn t1_staff() {
         let setup = Setup::new(Weapon::Staff, 1, Prayer::Augury, &LVLS, 1);
         assert_eq!(setup.max_hit, 23);
         assert_eq!(setup.acc_roll, 21976);
@@ -437,7 +429,7 @@ mod tests {
     }
 
     #[test]
-    fn t2armour_staff() {
+    fn t2_staff() {
         let setup = Setup::new(Weapon::Staff, 2, Prayer::Augury, &LVLS, 2);
         assert_eq!(setup.max_hit, 31);
         assert_eq!(setup.acc_roll, 29480);
@@ -446,7 +438,7 @@ mod tests {
     }
 
     #[test]
-    fn t3armour_staff() {
+    fn t3_staff() {
         let setup = Setup::new(Weapon::Staff, 3, Prayer::Augury, &LVLS, 3);
         assert_eq!(setup.max_hit, 39);
         assert_eq!(setup.acc_roll, 38592);
@@ -455,11 +447,40 @@ mod tests {
     }
 
     #[test]
+    fn t1_halberd() {
+        let setup = Setup::new(Weapon::Halberd, 1, Prayer::Piety, &LVLS, 1);
+        assert_eq!(setup.max_hit, 22);
+        assert_eq!(setup.acc_roll, 18648);
+        assert_eq!(setup.rdr, 30130);
+        assert_eq!(setup.mdr, 25990);
+    }
+
+    #[test]
+    fn t2_halberd() {
+        let setup = Setup::new(Weapon::Halberd, 2, Prayer::Piety, &LVLS, 2);
+        assert_eq!(setup.max_hit, 31);
+        assert_eq!(setup.acc_roll, 25956);
+        assert_eq!(setup.rdr, 37728);
+        assert_eq!(setup.mdr, 32544);
+    }
+
+    #[test]
+    fn t3_halberd() {
+        let setup = Setup::new(Weapon::Halberd, 3, Prayer::Piety, &LVLS, 3);
+        assert_eq!(setup.max_hit, 42);
+        assert_eq!(setup.acc_roll, 34020);
+        assert_eq!(setup.rdr, 45588);
+        assert_eq!(setup.mdr, 39324);
+    }
+
+    #[test]
     fn stats_70() {
         let lvls = Levels {
             ranged: 70,
             magic: 70,
             defence: 70,
+            attack: 70,
+            strength: 70,
             ..LVLS
         };
         let setup = Setup::new(Weapon::Staff, 3, Prayer::MysticMight, &lvls, 1);
@@ -473,6 +494,12 @@ mod tests {
         assert_eq!(setup.acc_roll, 22176);
         assert_eq!(setup.rdr, 20240);
         assert_eq!(setup.mdr, 18400);
+
+        let setup = Setup::new(Weapon::Halberd, 3, Prayer::Piety, &lvls, 1);
+        assert_eq!(setup.max_hit, 31);
+        assert_eq!(setup.acc_roll, 22632);
+        assert_eq!(setup.rdr, 21850);
+        assert_eq!(setup.mdr, 18860);
     }
 
     #[test]
@@ -481,6 +508,8 @@ mod tests {
             ranged: 90,
             magic: 85,
             defence: 80,
+            attack: 82,
+            strength: 87,
             ..LVLS
         };
         let setup = Setup::new(Weapon::Staff, 3, Prayer::MysticMight, &lvls, 2);
@@ -494,5 +523,11 @@ mod tests {
         assert_eq!(setup.acc_roll, 29304);
         assert_eq!(setup.rdr, 28800);
         assert_eq!(setup.mdr, 27360);
+
+        let setup = Setup::new(Weapon::Halberd, 3, Prayer::Piety, &lvls, 2);
+        assert_eq!(setup.max_hit, 37);
+        assert_eq!(setup.acc_roll, 27348);
+        assert_eq!(setup.rdr, 31104);
+        assert_eq!(setup.mdr, 27936);
     }
 }
