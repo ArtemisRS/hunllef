@@ -357,7 +357,6 @@ pub fn run_simulation(
             time += 1;
 
             if time > max_time {
-                player.hp = 0;
                 break;
             }
         }
