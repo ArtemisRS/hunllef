@@ -298,13 +298,17 @@ pub fn run_simulation(
     player: &Player,
     hunllef: &Hunllef,
     eat_at_hp: u16,
-    tick_eat: bool,
-    max_time: u16,
+    _tick_eat: bool,
+    _max_time: u16,
 ) -> (u32, Vec<u64>, Vec<u16>) {
     let mut times = Vec::new();
     let mut fish_rem = Vec::new();
     let mut success = 0;
     let rng = fastrand::Rng::new();
+
+    #[cfg(feature = "advanced")]
+    //this ensures that in tick eat sims we don't heal up too much
+    let eat_at_hp = if _tick_eat { 0 } else { eat_at_hp };
 
     // dbg!(&Player);
 
@@ -335,29 +339,37 @@ pub fn run_simulation(
             let setup = player.current;
 
             if let Some(damage) = hunllef.attack(&rng, setup.rdr, setup.mdr) {
-                let starting_hp = player.hp;
+                let _starting_hp = player.hp;
                 if player.hp < damage {
                     player.hp = 0;
                 } else {
                     player.hp -= damage;
                 }
-                //println!("  player takes {} damage", starting_hp - player.hp);
-                //only tick eat when hunllef is attacking
-                if tick_eat && starting_hp <= hunllef.max_hit {
-                    player.eat_fish();
-                    //println!("  tick ate from {} to {}", starting_hp, player.hp);
+                //println!("  player takes {} damage", _starting_hp - player.hp);
+
+                #[cfg(feature = "advanced")]
+                {
+                    //only tick eat when hunllef is attacking
+                    if _tick_eat && _starting_hp <= hunllef.max_hit {
+                        player.eat_fish();
+                        //println!("  tick ate from {} to {}", _starting_hp, player.hp);
+                    }
                 }
             }
 
-            //don't heal up when we're tick eating
-            if !tick_eat && player.hp < eat_at_hp {
+            //TODO: This should probably move under Hunllef attacks. Player HP
+            //can only drop below the threshold after being attacked
+            if player.hp < eat_at_hp {
                 player.eat_fish();
             }
 
             time += 1;
 
-            if time > max_time {
-                break;
+            #[cfg(feature = "advanced")]
+            {
+                if time > _max_time {
+                    break;
+                }
             }
         }
 

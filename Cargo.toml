@@ -10,6 +10,11 @@ clap = {version = "4", features = ["derive"] }
 fastrand = "1"
 hdrhistogram = "7"
 
+[features]
+# Enable advanced settings that slow down simulations
+# These include tick-eat, redemption, and max-time
+advanced = []
+
 [dev-dependencies]
 criterion = { version = "0.4", features = ["html_reports"] }
 
