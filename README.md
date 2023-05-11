@@ -4,10 +4,10 @@
 
 Simulator for the Corrupted Hunllef fight in OSRS. The goal is to predict food
 needed and time taken for a perfectly executed fight. There are a number of
-options available for setting simulation conditions including number of trials,
-combat stats, combat styles, armour/weapon tiers, and eating strategies.
+options that can be set which are described below, some of these slow down the
+simulation and are locked behind a compile time feature, "advanced".
 
-Features:
+Options:
 - All 3 player combat styles supported (Melee, Ranged, and Magic)
 - Player accuracy and defence rolls take into account levels, prayer,
   weapon/tier, and armour
@@ -16,13 +16,15 @@ Features:
   coupled with Steel Skin)
 - Accounts for tornado spawn frequency, time spent healing, and an estimate of
   other lost ticks
+- Histogram can be produced for food used and kill times
+
+Advanced Features:
 - Has the ability to tick eat attacks from Hunllef
+- Can set certain number of redemption heals to be attempted
 - Can set a maximum time for a run to take to be counted as a success
-- Histogram produced for food used and kill times
 
 Limitations:
 - Does not account for player natural HP regeneration
-- Does not allow for redemption healing
 - Does not account for hit delay (time between attacking and hit being
   registered)
 - **Assumes perfect play on behalf of the player (no off prayer attacks, no
@@ -55,6 +57,7 @@ Options:
       --hp <HP>                        Player HP Level [default: 99]
   -e, --eat-at-hp <EAT_AT_HP>          HP threshold to eat fish [default: 50]
       --tick-eat                       Simulate tick eating when hp is below Hunllef max
+      --redemption <REDEMPTION>        Simulate redemption healing a set number of times [default: 0]
       --lost-ticks <LOST_TICKS>        Account for ticks lost by player [default: 0]
       --max-time <MAX_TIME>            Max time for successful run (in ticks) [default: 6000]
       --histogram                      Histogram values for times/fish_eaten
@@ -116,5 +119,4 @@ sys	0m0.022s
 ## Future features (in rough order of implementing)
 - logging (annotated prints of individual kills)
 - 5:1
-- redemption healing
 - graphs (success rate by fish/lvl)

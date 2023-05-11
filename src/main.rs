@@ -75,6 +75,10 @@ struct Cli {
     #[arg(long, default_value_t = false)]
     tick_eat: bool,
 
+    ///Simulate redemption healing a set number of times
+    #[arg(long, default_value_t = 0)]
+    redemption: u8,
+
     ///Account for ticks lost by player
     #[arg(long, default_value_t = 0)]
     lost_ticks: u8,
@@ -155,8 +159,9 @@ fn main() {
     let player = Player::new(
         &setup1,
         &setup2,
-        levels.hp as u16,
+        &levels,
         args.fish,
+        args.redemption,
         args.lost_ticks,
     );
 

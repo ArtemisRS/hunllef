@@ -15,7 +15,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     let bow_setup = Setup::new(Weapon::Bow, 3, Prayer::Rigour, &levels, 1);
     let staff_setup = Setup::new(Weapon::Staff, 3, Prayer::Augury, &levels, 1);
 
-    let player = Player::new(&bow_setup, &staff_setup, levels.hp as u16, 12, 0);
+    let player = Player::new(&bow_setup, &staff_setup, &levels, 12, 0, 0);
 
     let hunllef = Hunllef::new(1);
 

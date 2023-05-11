@@ -225,31 +225,37 @@ impl Hunllef {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct Player<'a> {
+pub struct Player<'a, 'b> {
     setup1: &'a Setup,
     setup2: &'a Setup,
+    levels: &'b Levels,
     hp: u16,
     fish: u8,
+    redemption: u8,   //number of times to attempt redemption
     attack_cd: u8,    //ticks
     attacks_left: u8, //before switching styles
     current: &'a Setup,
 }
 
-impl<'a> Player<'a> {
-    pub fn new<'s>(
+impl<'a, 'b> Player<'a, 'b> {
+    pub fn new<'s, 'l>(
         setup1: &'s Setup,
         setup2: &'s Setup,
-        hp: u16,
+        levels: &'l Levels,
         fish: u8,
+        redemption: u8,
         lost_ticks: u8,
-    ) -> Player<'s> {
+    ) -> Player<'s, 'l> {
         let attack_cd = lost_ticks;
         let attacks_left = 6;
+        let hp = levels.hp as u16;
         Player {
             setup1,
             setup2,
+            levels,
             hp,
             fish,
+            redemption,
             attack_cd,
             attacks_left,
             current: if fastrand::bool() { setup1 } else { setup2 },
@@ -291,6 +297,14 @@ impl<'a> Player<'a> {
             //println!("  eating a fish to take us to {}", self.hp);
         }
     }
+
+    fn _redemption_heal(&mut self) {
+        if self.redemption > 0 {
+            self.redemption -= 1;
+            self.hp += self.levels.prayer as u16 / 4;
+            //println!("  redemption healing to take us to {}", self.hp);
+        }
+    }
 }
 
 pub fn run_simulation(
@@ -317,8 +331,9 @@ pub fn run_simulation(
         let mut player = Player::new(
             player.setup1,
             player.setup2,
-            player.hp,
+            player.levels,
             player.fish,
+            player.redemption,
             player.attack_cd,
         );
         let mut hunllef = *hunllef;
@@ -347,10 +362,14 @@ pub fn run_simulation(
                 }
                 //println!("  player takes {} damage", _starting_hp - player.hp);
 
+                //only tick eat/redemption when hunllef is attacking
                 #[cfg(feature = "advanced")]
                 {
-                    //only tick eat when hunllef is attacking
-                    if _tick_eat && _starting_hp <= hunllef.max_hit {
+                    if _starting_hp > (hunllef.max_hit + player.levels.hp as u16 / 10) {
+                        //do nothing in this case
+                    } else if _starting_hp > hunllef.max_hit {
+                        player._redemption_heal();
+                    } else if _tick_eat {
                         player.eat_fish();
                         //println!("  tick ate from {} to {}", _starting_hp, player.hp);
                     }
