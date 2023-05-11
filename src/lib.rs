@@ -212,7 +212,7 @@ impl Hunllef {
             };
 
             //ranges are not inclusive of top, but the rolls need to be
-            if rng.u16(0..self.acc_roll) > rng.u16(0..pdr + 1) {
+            if rng.u16(0..self.acc_roll + 1) > rng.u16(0..pdr + 1) {
                 Some(rng.u16(0..self.max_hit + 1))
             } else {
                 Some(0)
