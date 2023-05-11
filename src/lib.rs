@@ -6,6 +6,7 @@ pub enum Weapon {
     Bow,
     Staff,
     Halberd,
+    Kick,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
@@ -69,6 +70,7 @@ impl Setup {
             (Weapon::Bow, 1) => (72, 42),
             (Weapon::Staff, 1) => (84, 23),
             (Weapon::Halberd, 1) => (68, 42),
+            (Weapon::Kick, _) => (0, 0),
             (_, _) => panic!("weapon_tier must be 1, 2, or 3"),
         };
         let eq_acc = armour_acc + weapon_acc;
@@ -83,17 +85,17 @@ impl Setup {
         let (acc_lvl, dam_lvl) = match weapon {
             Weapon::Bow => (levels.ranged, levels.ranged),
             Weapon::Staff => (levels.magic, levels.magic),
-            Weapon::Halberd => (levels.attack, levels.strength),
+            Weapon::Halberd | Weapon::Kick => (levels.attack, levels.strength),
         };
 
         let stance_bonus = if weapon == Weapon::Staff { 3 } else { 0 };
         let eff_acc_lvl = effective_level(acc_lvl, prayer_acc, stance_bonus);
         let acc_roll = eff_acc_lvl * (eq_acc + 64);
 
-        let stance_bonus = if weapon == Weapon::Halberd { 3 } else { 0 };
+        let stance_bonus = if weapon == Weapon::Halberd || weapon == Weapon::Kick { 3 } else { 0 };
         let eff_str_lvl = effective_level(dam_lvl, prayer_str, stance_bonus);
         let max_hit = match weapon {
-            Weapon::Bow | Weapon::Halberd => (eff_str_lvl * (eq_str + 64) + 320) / 640,
+            Weapon::Bow | Weapon::Halberd | Weapon::Kick => (eff_str_lvl * (eq_str + 64) + 320) / 640,
             Weapon::Staff => eq_str,
         };
 
@@ -228,6 +230,7 @@ impl Hunllef {
 pub struct Player<'a, 'b> {
     setup1: &'a Setup,
     setup2: &'a Setup,
+    setup3: Option<&'a Setup>,
     levels: &'b Levels,
     hp: u16,
     fish: u8,
@@ -241,6 +244,7 @@ impl<'a, 'b> Player<'a, 'b> {
     pub fn new<'s, 'l>(
         setup1: &'s Setup,
         setup2: &'s Setup,
+        setup3: Option<&'s Setup>,
         levels: &'l Levels,
         fish: u8,
         redemption: u8,
@@ -252,6 +256,7 @@ impl<'a, 'b> Player<'a, 'b> {
         Player {
             setup1,
             setup2,
+            setup3,
             levels,
             hp,
             fish,
