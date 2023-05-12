@@ -365,10 +365,10 @@ pub fn run_simulation(
                 //only tick eat/redemption when hunllef is attacking
                 #[cfg(feature = "advanced")]
                 {
-                    if _starting_hp > (hunllef.max_hit + player.levels.hp as u16 / 10) {
-                        //do nothing in this case
-                    } else if _starting_hp > hunllef.max_hit {
-                        player._redemption_heal();
+                    if _starting_hp > hunllef.max_hit {
+                        if player.hp < (player.levels.hp as u16 - 1) / 10 + 1 {
+                            player._redemption_heal();
+                        }
                     } else if _tick_eat {
                         player.eat_fish();
                         //println!("  tick ate from {} to {}", _starting_hp, player.hp);
