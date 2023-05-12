@@ -560,4 +560,12 @@ mod tests {
         assert_eq!(setup.rdr, 31104);
         assert_eq!(setup.mdr, 27936);
     }
+
+    #[test]
+    fn hunllef_stats() {
+        let hunllef = Hunllef::new(1);
+        assert_eq!(hunllef.max_hit, 13);
+        assert_eq!(hunllef.acc_roll, 38346);
+        assert_eq!(hunllef.defensive_roll, 20916);
+    }
 }
