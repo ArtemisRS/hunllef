@@ -366,6 +366,8 @@ pub fn run_simulation(
                 #[cfg(feature = "advanced")]
                 {
                     if _starting_hp > hunllef.max_hit {
+                        //redemption when hp is under 10% of max hp
+                        //@90 hp be below 9, @91hp be below 10
                         if player.hp < (player.levels.hp as u16 - 1) / 10 + 1 {
                             player._redemption_heal();
                         }

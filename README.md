@@ -55,6 +55,7 @@ Options:
       --ranged <RANGED>                Player Ranged Level [default: 99]
       --magic <MAGIC>                  Player Magic Level [default: 99]
       --hp <HP>                        Player HP Level [default: 99]
+      --prayer <PRAYER>                Player Prayer Level [default: 99]
   -e, --eat-at-hp <EAT_AT_HP>          HP threshold to eat fish [default: 50]
       --tick-eat                       Simulate tick eating when hp is below Hunllef max
       --redemption <REDEMPTION>        Simulate redemption healing a set number of times [default: 0]

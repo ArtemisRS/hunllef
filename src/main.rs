@@ -67,6 +67,10 @@ struct Cli {
     #[arg(long, default_value_t = 99)]
     hp: u8,
 
+    /// Player Prayer Level
+    #[arg(long, default_value_t = 99)]
+    prayer: u8,
+
     /// HP threshold to eat fish
     #[arg(long, default_value_t = 50)]
     eat_at_hp: u16,
@@ -137,7 +141,7 @@ fn main() {
         defence: args.defence,
         ranged: args.ranged,
         magic: args.magic,
-        prayer: 99,
+        prayer: args.prayer,
         hp: args.hp,
     };
 
