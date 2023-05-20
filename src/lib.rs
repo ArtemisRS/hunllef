@@ -410,6 +410,39 @@ pub fn run_simulation(
     (success, fish_eaten, times)
 }
 
+pub fn data_mode(
+    trials: u32,
+    player: &Player,
+    hunllef: &Hunllef,
+    eat_at_hp: u16,
+    tick_eat: bool,
+    max_time: u16,
+) -> Vec<u32> {
+    let mut success_rate: Vec<u32> = Vec::with_capacity(player.fish as usize);
+    for i in 0..=player.fish {
+        let player = Player::new(
+            player.setup1,
+            player.setup2,
+            player.levels,
+            i,
+            player.redemption,
+            player.attack_cd,
+        );
+
+        let (success, _, _) = run_simulation(
+            trials,
+            &player,
+            hunllef,
+            eat_at_hp,
+            tick_eat,
+            max_time,
+        );
+
+        success_rate.push(success);
+    }
+    success_rate
+}
+
 #[cfg(test)]
 mod tests {
     use crate::*;

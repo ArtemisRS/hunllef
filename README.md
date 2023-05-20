@@ -1,4 +1,4 @@
-*Inspired by https://github.com/Jawnny/hunllefSim*
+*Inspired by https://github.com/Jawnny/hunllefSim and https://github.com/molgoatkirby/osrs_public*
 
 ## Corrupted Hunllef Simulator
 
@@ -17,6 +17,8 @@ Options:
 - Accounts for tornado spawn frequency, time spent healing, and an estimate of
   other lost ticks
 - Histogram can be produced for food used and kill times
+- Data mode which iterates across food usage from 0-specified to produce a graph
+  of success rates by food taken
 
 Advanced Features:
 - Has the ability to tick eat attacks from Hunllef

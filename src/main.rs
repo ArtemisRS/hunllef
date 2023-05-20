@@ -94,6 +94,10 @@ struct Cli {
     /// Histogram values for times/fish_eaten
     #[arg(long, default_value_t = false)]
     histogram: bool,
+
+    /// Outputs success rate for each amount of food from 1 to set value
+    #[arg(long, default_value_t = false)]
+    data_mode: bool,
 }
 fn generate_histogram(times: &[u16], fish_eaten: &[u64]) {
     fn tick_to_secs(ticks: u64) -> String {
@@ -171,23 +175,38 @@ fn main() {
 
     let hunllef = Hunllef::new(args.armour);
 
-    let (success, fish_eaten, times) = hunllef::run_simulation(
-        args.trials,
-        &player,
-        &hunllef,
-        args.eat_at_hp,
-        args.tick_eat,
-        args.max_time,
-    );
+    if args.data_mode {
+        let success = hunllef::data_mode(
+            args.trials,
+            &player,
+            &hunllef,
+            args.eat_at_hp,
+            args.tick_eat,
+            args.max_time,
+        );
+        for rate in success{
+            let success_rate = (rate as f32 * 100.0) / (args.trials as f32);
+            print!("{success_rate:.2}, ");
+        }
+    } else {
+        let (success, fish_eaten, times) = hunllef::run_simulation(
+            args.trials,
+            &player,
+            &hunllef,
+            args.eat_at_hp,
+            args.tick_eat,
+            args.max_time,
+        );
 
-    let success_rate = (success as f32 * 100.0) / (args.trials as f32);
-    let avg_fish: f64 = fish_eaten.iter().sum::<u64>() as f64 / fish_eaten.len() as f64;
-    let avg_time = times.iter().map(|t| *t as u64).sum::<u64>() as f64 / times.len() as f64;
-    println!("success rate: {:.2}%", success_rate);
-    println!("avg fish eaten: {:.1}", avg_fish);
-    println!("avg time: {:.1} ticks", avg_time);
+        let success_rate = (success as f32 * 100.0) / (args.trials as f32);
+        let avg_fish: f64 = fish_eaten.iter().sum::<u64>() as f64 / fish_eaten.len() as f64;
+        let avg_time = times.iter().map(|t| *t as u64).sum::<u64>() as f64 / times.len() as f64;
+        println!("success rate: {:.2}%", success_rate);
+        println!("avg fish eaten: {:.1}", avg_fish);
+        println!("avg time: {:.1} ticks", avg_time);
 
-    if args.histogram {
-        generate_histogram(&times, &fish_eaten);
+        if args.histogram {
+            generate_histogram(&times, &fish_eaten);
+        }
     }
 }
